@@ -1,5 +1,6 @@
 var storageCache = {}
 const def_class = "highlighter_chrome-ext"
+
 document.addEventListener('mouseup', function () {
     if (storageCache.can_exec) {
         sel = window.getSelection();
@@ -15,16 +16,32 @@ document.addEventListener('mouseup', function () {
                         if (!Array.from(e.parentElement.classList).includes(def_class)) {
                             var bef_node = e.textContent.slice(0, sel_r.startOffset);
                             var end_node = e.textContent.slice(sel_r.endOffset);
-                            var node = document.createElement('span')
-                            node.innerHTML = bef_node + '<span class="' + def_class + '" style="background-color:yellow">' + sel.toString() + '</span>' + end_node
+                            var node = document.createElement('span');
+                            var val = (new Date().valueOf()).toString();
+                            node.innerHTML = bef_node + '<span id="' + val
+                                            + '" class="' + def_class 
+                                            + '" style="background-color:yellow">' + sel.toString() 
+                                            + '</span><span class="close"></span>' + end_node
                             e.parentElement.replaceChild(node, elem)
                         }
                     }
                 }
             }
         }
+        var elements = document.getElementsByClassName(def_class);
+        for(var element of elements) {
+            element.addEventListener('mouseenter', enter, false);
+            element.addEventListener('mouseleave', leave, false);
+        }
     }
 })
+
+var enter = function() {
+    console.log("in")
+};
+var leave = function() {
+    console.log("out")
+};
 
 function copyToClipBoard() {
     var content = '';

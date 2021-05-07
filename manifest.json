@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Highlighter",
+  "name": "Highlighter by Lorenzo",
   "description": "Advanced copy to clipboard tool for Google Chrome browser.",
   "version": "0.2",
   "permissions": [
@@ -16,6 +16,9 @@
       "js": [
         "src/content.js"
       ],
+      "css": [
+        "pag/css/main.css"
+      ],
       "run_at": "document_end"
     }
   ],
@@ -24,7 +27,7 @@
     "128": "pag/img/icon_highlighter128.png"
   },
   "action": {
-    "default_title": "Highlighter",
+    "default_title": "Highlighter by Lorenzo",
     "default_icon": "pag/img/icon_highlighter48.png",
     "default_popup": "pag/std_popup.html"
   }
