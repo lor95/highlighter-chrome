@@ -1,0 +1,18 @@
+{
+    "manifest_version": 3,
+    "name": "Highlighter",
+    "version": "0.1",
+    "permissions": ["storage", "activeTab", "scripting"],
+    "content_scripts": [
+      {
+        "matches": [
+          "<all_urls>"
+        ],
+        "js": ["src/content.js"],
+        "run_at": "document_end"
+      }
+    ],
+    "action": {
+      "default_popup": "pag/std_popup.html"
+    }
+  }
