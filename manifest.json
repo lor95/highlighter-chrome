@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Highlighter",
-  "description": "Copy paste lines",
-  "version": "0.1",
+  "description": "Advanced copy to clipboard tool for Google Chrome browser.",
+  "version": "0.2",
   "permissions": [
     "storage",
     "activeTab",
@@ -19,7 +19,13 @@
       "run_at": "document_end"
     }
   ],
+  "icons": {
+    "48": "pag/img/icon_highlighter48.png",
+    "128": "pag/img/icon_highlighter128.png"
+  },
   "action": {
+    "default_title": "Highlighter",
+    "default_icon": "pag/img/icon_highlighter48.png",
     "default_popup": "pag/std_popup.html"
   }
 }
