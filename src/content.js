@@ -26,6 +26,20 @@ document.addEventListener('mouseup', function () {
     }
 })
 
+function copyToClipBoard() {
+    var content = '';
+    var elements = document.getElementsByClassName(def_class);
+    for(var element of elements) {
+        content += element.innerText;
+    }
+    var temp = document.createElement("textarea");
+    document.body.appendChild(temp);
+    temp.value = content;
+    temp.select();
+    document.execCommand("copy");
+    document.body.removeChild(temp);
+}
+
 chrome.storage.onChanged.addListener((changes, area) => {
     if (area === 'sync' && changes.storage?.newValue) {
         storageCache = changes.storage.newValue;
@@ -33,6 +47,13 @@ chrome.storage.onChanged.addListener((changes, area) => {
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    storageCache = message.storage
+    switch (message.action) {
+        case 'copy_clp':
+            copyToClipBoard()
+            break;
+        case 'storage_cache':
+            storageCache = message.storage
+            break;
+    }
     return true
 });
