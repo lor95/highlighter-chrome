@@ -21,26 +21,41 @@ document.addEventListener('mouseup', function () {
                             node.innerHTML = bef_node + '<span id="' + val
                                             + '" class="' + def_class 
                                             + '" style="background-color:yellow">' + sel.toString() 
-                                            + '</span><span class="close"></span>' + end_node
-                            e.parentElement.replaceChild(node, elem)
+                                            + '</span>' + end_node;
+                            e.parentElement.replaceChild(node, elem);
+                            document.getElementById(val).addEventListener('mouseenter', function(event) {enter(event, this.id)}, false);
+                            document.getElementById(val).addEventListener('mouseleave', function(event) {leave(event, this.id)}, false);
                         }
                     }
                 }
             }
         }
-        var elements = document.getElementsByClassName(def_class);
-        for(var element of elements) {
-            element.addEventListener('mouseenter', enter, false);
-            element.addEventListener('mouseleave', leave, false);
-        }
     }
 })
 
-var enter = function() {
-    console.log("in")
+const x_id = (new Date().valueOf()).toString();
+var timer;
+
+var enter = function(event, id) {
+    /*
+    window.clearTimeout(timer)
+    timer = window.setTimeout(function() {
+        var elem = document.getElementById(x_id)
+        var bounding = document.getElementById(id).getBoundingClientRect();
+        elem.setAttribute("referral",id);
+        elem.style.left = (Math.round(bounding.left) + Math.round(bounding.width) + window.scrollX - 20) + "px";
+        elem.style.top = (bounding.top + window.scrollY - 15) + "px";
+        elem.hidden = false;
+    }, 700)
+    */
 };
-var leave = function() {
-    console.log("out")
+var leave = function(event, id) {
+    /*
+    window.clearTimeout(timer)
+    timer = window.setTimeout(function() {
+        document.getElementById(x_id).hidden = true;
+    }, 700)
+    */
 };
 
 function copyToClipBoard() {
@@ -69,8 +84,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             copyToClipBoard()
             break;
         case 'storage_cache':
-            storageCache = message.storage
+            storageCache = message.mem_cache.storage
             break;
     }
     return true
 });
+
+var node = document.createElement('div');
+node.id = x_id;
+node.className = "close";
+node.hidden = true;
+/*
+node.addEventListener('click', function() {  }, false);
+node.addEventListener('mouseenter', function() {  }, false);
+node.addEventListener('mouseleave', function(event) { leave(event, this.getAttribute("referral")) }, false);
+*/
+document.body.appendChild(node);
