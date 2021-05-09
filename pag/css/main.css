@@ -58,7 +58,7 @@ input:checked + .slider:before {
     position: absolute;
     width: 15px;
     height: 15px;
-    opacity: 0.3;
+    opacity: 0.55;
     cursor: pointer;
 }
 .close:hover {

@@ -1,10 +1,11 @@
-var storageCache = {}
-const def_class = "highlighter_chrome-ext"
+var storageCache = {};
+var _elems = [];
+const def_class = "highlighter_chrome-ext";
 
 document.addEventListener('mouseup', function () {
     sel = window.getSelection();
     if (storageCache.can_exec && sel.toString().length > 0) {
-        var sel_r = sel.getRangeAt(0)
+        var sel_r = sel.getRangeAt(0);
         try {
             var elements = sel_r.commonAncestorContainer.getElementsByTagName("*");
         } catch {
@@ -17,9 +18,10 @@ document.addEventListener('mouseup', function () {
                     var val = (new Date().valueOf()).toString();
                     node.innerHTML = bef_node + '<span id="' + val
                         + '" class="' + def_class
-                        + '" style="background-color:yellow">' + sel.toString()
+                        + '" style="background-color:#ffff66">' + sel.toString()
                         + '</span>' + end_node;
                     e.parentElement.replaceChild(node, elem);
+                    _elems.push(val);
                     document.getElementById(val).addEventListener('mouseenter', function () { enter(this.id) }, false);
                     document.getElementById(val).addEventListener('mouseleave', function () { leave() }, false);
                 }
@@ -32,29 +34,45 @@ const x_id = (new Date().valueOf()).toString();
 var timer;
 
 var enter = function (id) {
-    window.clearTimeout(timer);
-    timer = window.setTimeout(function () {
-        var elem = document.getElementById(x_id);
-        var bounding = document.getElementById(id).getBoundingClientRect();
-        elem.setAttribute("referral", id);
-        elem.style.left = (Math.round(bounding.left) + Math.round(bounding.width) + window.scrollX - 20) + "px";
-        elem.style.top = (bounding.top + window.scrollY - 15) + "px";
-        elem.hidden = false;
-    }, 700)
+    if (storageCache.can_exec) {
+        window.clearTimeout(timer);
+        timer = window.setTimeout(function () {
+            var elem = document.getElementById(x_id);
+            var bounding = document.getElementById(id).getBoundingClientRect();
+            elem.setAttribute("referral", id);
+            elem.style.left = (Math.round(bounding.left) + Math.round(bounding.width) + window.scrollX - 20) + "px";
+            elem.style.top = (bounding.top + window.scrollY - 15) + "px";
+            elem.hidden = false;
+        }, 600);
+    }
 };
 var leave = function () {
-    window.clearTimeout(timer);
-    timer = window.setTimeout(function () {
-        document.getElementById(x_id).hidden = true;
-    }, 700)
+    if (storageCache.can_exec) {
+        window.clearTimeout(timer);
+        timer = window.setTimeout(function () {
+            document.getElementById(x_id).hidden = true;
+        }, 800);
+    }
 };
 
 var stopTimer = function () {
-    window.clearTimeout(timer);
+    if (storageCache.can_exec) {
+        window.clearTimeout(timer);
+    }
 }
 
 var deleteHighlight = function (id) {
-    console.log(id);
+    if (storageCache.can_exec) {
+        if (id === 'last') {
+            id = _elems.pop()
+        } else {
+            var index = _elems.indexOf(id);
+            if (index >= 0) {
+                _elems.splice(index, 1);
+            }
+        }
+        console.log(_elems);
+    }
 }
 
 function copyToClipBoard() {
@@ -79,6 +97,8 @@ function copyToClipBoard() {
 document.addEventListener('keydown', (event) => {
     if (event.ctrlKey && event.key === 'c') {
         copyToClipBoard();
+    } else if (event.ctrlKey && event.key === 'z') {
+        deleteHighlight('last');
     }
 });
 
@@ -91,13 +111,13 @@ chrome.storage.onChanged.addListener((changes, area) => {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     switch (message.action) {
         case 'copy_clp':
-            copyToClipBoard()
+            copyToClipBoard();
             break;
         case 'storage_cache':
-            storageCache = message.mem_cache.storage
+            storageCache = message.mem_cache.storage;
             break;
     }
-    return true
+    return true;
 });
 
 var node = document.createElement('div');
