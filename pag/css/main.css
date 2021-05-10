@@ -54,17 +54,17 @@ input:checked + .slider:before {
 .slider.round:before {
     border-radius: 50%;
 }
-.close { 
+.close_highlighter_chrome-ext { 
     position: absolute;
     width: 15px;
     height: 15px;
     opacity: 0.55;
     cursor: pointer;
 }
-.close:hover {
+.close_highlighter_chrome-ext:hover {
     opacity: 1;
 }
-.close:before, .close:after {
+.close_highlighter_chrome-ext:before, .close_highlighter_chrome-ext:after {
     position: absolute;
     left: 15px;
     content: ' ';
@@ -72,9 +72,9 @@ input:checked + .slider:before {
     width: 2px;
     background-color: #333;
 }
-.close:before {
+.close_highlighter_chrome-ext:before {
     transform: rotate(45deg);
 }
-.close:after {
+.close_highlighter_chrome-ext:after {
     transform: rotate(-45deg);
 }

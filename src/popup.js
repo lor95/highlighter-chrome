@@ -13,14 +13,14 @@ sw_elem.addEventListener('change', (event) => {
 
 copy_clp.addEventListener('click', (event) => {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-    chrome.tabs.sendMessage(tabs[0].id, { action: "copy_clp" });
+    chrome.tabs.sendMessage(tabs[0].id, { action: 'copy_clp' });
   });
 });
 
 const initStorageCache = getAllStorageSyncData().then(items => {
   Object.assign(storageCache, items);
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-    chrome.tabs.sendMessage(tabs[0].id, { action: "storage_cache", "mem_cache": storageCache });
+    chrome.tabs.sendMessage(tabs[0].id, { action: 'storage_cache', 'mem_cache': storageCache });
   });
 });
 
