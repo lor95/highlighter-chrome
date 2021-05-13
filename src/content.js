@@ -2,8 +2,7 @@ var storageCache = {};
 var _elems = [];
 const def_class = 'hightlighter_highlighter_chrome-ext';
 
-function defineNodes(bef, end, content, ct) {
-    var val = (new Date().valueOf()).toString() + '_' + ct;
+function defineNodes(bef, end, content, val) {
     var bef_node = '';
     var end_node = '';
     if (bef !== null) {
@@ -19,8 +18,24 @@ function defineNodes(bef, end, content, ct) {
     node.textContent = content;
     node.addEventListener('mouseenter', function () { enter(val) }, false);
     node.addEventListener('mouseleave', function () { leave() }, false);
-    _elems.push(val);
     return [bef_node, end_node, node];
+}
+
+function getChilds(HTMLcoll) {
+    if (!Array.isArray(HTMLcoll)) {
+        HTMLcoll = [HTMLcoll];
+    }
+    for (var i = 0; i < HTMLcoll.length; i++) {
+        if (Array.from(HTMLcoll[i].childNodes).length > 1) {
+            HTMLcoll[i] = Array.from(HTMLcoll[i].childNodes);
+        }
+        if (Array.isArray(HTMLcoll[i]) && HTMLcoll[i].length > 1) {
+            for (var j = 0; j < HTMLcoll.length; j++) {
+                HTMLcoll[i] = getChilds(HTMLcoll[i]);
+            }
+        }
+    }
+    return HTMLcoll;
 }
 
 document.addEventListener('mouseup', function () {
@@ -34,59 +49,95 @@ document.addEventListener('mouseup', function () {
             if (!Array.from(elements).includes(start) || !Array.from(elements).includes(end)) {
                 elements = sel_r.commonAncestorContainer.parentElement.getElementsByTagName('*');
             }
-            var flag = false;
-            for (var i = 0; i < elements.length; i++) {
-                if (elements[i].isSameNode(start) && !Array.from(start.classList).includes(def_class)) { /////// first node
+            var idxs = Array.from(elements).indexOf(start);
+            var idxe = Array.from(elements).indexOf(end);
+            var temp = [];
+            var val = 0;
+            for (var i = Math.max(idxs, idxe); i >= Math.min(idxs, idxe); i--) {
+                if (elements[i].isSameNode(start)/* && !Array.from(start.classList).includes(def_class)*/) { /////// first node
                     if (Array.from(start.childNodes).length > 1) {
                         for (var elem of start.childNodes) {
                             if (sel_r.startContainer.isSameNode(elem)) {
-                                var nodes = defineNodes(elem.textContent.slice(0, sel_r.startOffset), null, elem.textContent.substring(sel_r.startOffset), i);
+
+                                val = (new Date().valueOf()).toString() + '_' + Math.floor(Math.random() * 1000000);
+                                var nodes = defineNodes(elem.textContent.slice(0, sel_r.startOffset), null, elem.textContent.substring(sel_r.startOffset), val);
                                 start.insertBefore(nodes[0], elem);
                                 start.insertBefore(nodes[2], elem);
                                 start.removeChild(elem);
+                                _elems.push(val);
+                                temp.unshift(val);
                             }
                         }
                     } else {
-                        var nodes = defineNodes(start.textContent.slice(0, sel_r.startOffset), null, start.textContent.substring(sel_r.startOffset), i);
+                        val = (new Date().valueOf()).toString() + '_' + Math.floor(Math.random() * 1000000);
+                        var nodes = defineNodes(start.textContent.slice(0, sel_r.startOffset), null, start.textContent.substring(sel_r.startOffset), val);
                         while (start.firstChild) {
                             start.removeChild(start.firstChild);
                         }
                         start.appendChild(nodes[0]);
                         start.appendChild(nodes[2]);
+                        _elems.push(val);
+                        temp.unshift(val);
                     }
-                    flag = true
-                } else if (elements[i].isSameNode(end) && !Array.from(end.classList).includes(def_class)) { /////// last node
+                }
+                if (elements[i].isSameNode(end)/* && !Array.from(end.classList).includes(def_class)*/) { /////// last node
                     if (Array.from(end.childNodes).length > 1) {
                         for (var elem of end.childNodes) {
                             if (sel_r.endContainer.isSameNode(elem)) {
-                                var nodes = defineNodes(null, elem.textContent.slice(sel_r.endOffset), elem.textContent.substring(0, sel_r.endOffset), i);
+                                val = (new Date().valueOf()).toString() + '_' + Math.floor(Math.random() * 1000000);
+                                var nodes = defineNodes(null, elem.textContent.slice(sel_r.endOffset), elem.textContent.substring(0, sel_r.endOffset), val);
                                 end.insertBefore(nodes[2], elem);
                                 end.insertBefore(nodes[1], elem);
                                 end.removeChild(elem);
+                                _elems.push(val);
+                                temp.push(val);
                             }
                         }
                     } else {
-                        var nodes = defineNodes(null, end.textContent.slice(sel_r.endOffset), end.textContent.substring(0, sel_r.endOffset), i);
+                        val = (new Date().valueOf()).toString() + '_' + Math.floor(Math.random() * 1000000);
+                        var nodes = defineNodes(null, end.textContent.slice(sel_r.endOffset), end.textContent.substring(0, sel_r.endOffset), val);
                         while (end.firstChild) {
                             end.removeChild(end.firstChild);
                         }
                         end.appendChild(nodes[2]);
                         end.appendChild(nodes[1]);
+                        _elems.push(val);
+                        temp.push(val);
                     }
-                    flag = false;
-                } else if (flag) {
-                    console.log(elements[i].textContent)
                 }
             }
+            sel_r.setStartAfter(document.getElementById(temp[0]));
+            sel_r.setEndBefore(document.getElementById(temp[1]));
+            var between = Array.from(sel_r.extractContents().childNodes);
+            for (var i = 0; i < between.length; i++) {
+                between[i] = getChilds(between[i])
+            }
+            between = between.flat(Infinity);
+            for (var i = between.length - 1; i >= 0; i--) {
+                val = (new Date().valueOf()).toString() + '_' + Math.floor(Math.random() * 1000000);
+                var nodes = defineNodes(null, null, between[i].textContent, val);
+                if (between[i].nodeType !== 3) {
+                    while (between[i].firstChild) {
+                        between[i].removeChild(between[i].firstChild);
+                    }
+                    between[i].appendChild(nodes[2]);
+                } else {
+                    between[i] = nodes[2];
+                }
+                sel_r.insertNode(between[i]);
+                _elems.push(val);
+            }
         } catch (er) {
-            console.log(er)
+            var val = 0;
             var e = sel_r.startContainer;
             for (var elem of e.parentElement.childNodes) {
                 if (e.isSameNode(elem) && !Array.from(e.parentElement.classList).includes(def_class)) {
-                    var nodes = defineNodes(e.textContent.slice(0, sel_r.startOffset), e.textContent.slice(sel_r.endOffset), sel.toString(), 0)
+                    val = (new Date().valueOf()).toString() + '_' + Math.floor(Math.random() * 1000000);
+                    var nodes = defineNodes(e.textContent.slice(0, sel_r.startOffset), e.textContent.slice(sel_r.endOffset), sel.toString(), val)
                     e.parentElement.replaceChild(nodes[2], elem);
                     nodes[2].parentNode.insertBefore(nodes[0], nodes[2]);
                     nodes[2].parentNode.insertBefore(nodes[1], nodes[2].nextSibling);
+                    _elems.push(val);
                 }
             }
         }
