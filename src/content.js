@@ -1,5 +1,7 @@
 var storageCache = {};
+var _map = {};
 var _elems = [];
+var _keys = [];
 const def_class = 'hightlighter_highlighter_chrome-ext';
 
 function defineNodes(bef, end, content, val) {
@@ -21,21 +23,55 @@ function defineNodes(bef, end, content, val) {
     return [bef_node, end_node, node];
 }
 
-function getChilds(HTMLcoll) {
+function getHtmlTree(HTMLcoll, old) {
+    var m_k = '';
     if (!Array.isArray(HTMLcoll)) {
         HTMLcoll = [HTMLcoll];
     }
     for (var i = 0; i < HTMLcoll.length; i++) {
-        if (Array.from(HTMLcoll[i].childNodes).length > 1) {
+        if (Array.from(HTMLcoll[i].childNodes).length >= 1) {
+            if (old === undefined) {
+                m_k = i;
+                _keys.unshift(m_k.toString());
+            } else {
+                m_k = old.toString() + '|' + i.toString();
+                var idx = _keys.indexOf(old.toString());
+                if (idx > -1) {
+                    _keys.splice(idx, 1);
+                }
+                _keys.unshift(m_k.toString());
+            }
+            _map[m_k] = HTMLcoll[i];
             HTMLcoll[i] = Array.from(HTMLcoll[i].childNodes);
         }
         if (Array.isArray(HTMLcoll[i]) && HTMLcoll[i].length > 1) {
-            for (var j = 0; j < HTMLcoll.length; j++) {
-                HTMLcoll[i] = getChilds(HTMLcoll[i]);
-            }
+            HTMLcoll[i] = getHtmlTree(HTMLcoll[i], m_k);
         }
     }
     return HTMLcoll;
+}
+
+function recursiveMapEval(elem) {
+    if (!Array.isArray(elem)) {
+        elem = [elem];
+    }
+    for (var i = 0; i < elem.length; i++) {
+        if (Array.isArray(elem[i])) {
+            elem[i] = recursiveMapEval(elem[i])[0];
+        }
+        var val = (new Date().valueOf()).toString() + '_' + Math.floor(Math.random() * 1000000);
+        var nodes = defineNodes(null, null, elem[i].textContent, val);
+        if (elem[i].nodeType === 3) {
+            elem[i] = nodes[2];
+        } else {
+            while (elem[i].firstChild) {
+                elem[i].removeChild(elem[i].firstChild);
+            }
+            elem[i].appendChild(nodes[2]);
+        }
+        _elems.push(val);
+    }
+    return elem;
 }
 
 document.addEventListener('mouseup', function () {
@@ -46,19 +82,24 @@ document.addEventListener('mouseup', function () {
             var elements = sel_r.commonAncestorContainer.getElementsByTagName('*');
             var start = sel_r.startContainer.parentElement;
             var end = sel_r.endContainer.parentElement;
+            //var c_ca = sel_r.commonAncestorContainer.cloneNode(true);
+            //var c_start = start.cloneNode(true);
+            //var c_end = end.cloneNode(true);
             if (!Array.from(elements).includes(start) || !Array.from(elements).includes(end)) {
                 elements = sel_r.commonAncestorContainer.parentElement.getElementsByTagName('*');
+                //c_ca = sel_r.commonAncestorContainer.parentElement.cloneNode(true);
             }
             var idxs = Array.from(elements).indexOf(start);
             var idxe = Array.from(elements).indexOf(end);
             var temp = [];
             var val = 0;
+            _map = {}
+            _keys = [];
             for (var i = Math.max(idxs, idxe); i >= Math.min(idxs, idxe); i--) {
                 if (elements[i].isSameNode(start)/* && !Array.from(start.classList).includes(def_class)*/) { /////// first node
                     if (Array.from(start.childNodes).length > 1) {
                         for (var elem of start.childNodes) {
                             if (sel_r.startContainer.isSameNode(elem)) {
-
                                 val = (new Date().valueOf()).toString() + '_' + Math.floor(Math.random() * 1000000);
                                 var nodes = defineNodes(elem.textContent.slice(0, sel_r.startOffset), null, elem.textContent.substring(sel_r.startOffset), val);
                                 start.insertBefore(nodes[0], elem);
@@ -109,25 +150,70 @@ document.addEventListener('mouseup', function () {
             sel_r.setStartAfter(document.getElementById(temp[0]));
             sel_r.setEndBefore(document.getElementById(temp[1]));
             var between = Array.from(sel_r.extractContents().childNodes);
-            for (var i = 0; i < between.length; i++) {
-                between[i] = getChilds(between[i])
-            }
-            between = between.flat(Infinity);
-            for (var i = between.length - 1; i >= 0; i--) {
-                val = (new Date().valueOf()).toString() + '_' + Math.floor(Math.random() * 1000000);
-                var nodes = defineNodes(null, null, between[i].textContent, val);
-                if (between[i].nodeType !== 3) {
-                    while (between[i].firstChild) {
-                        between[i].removeChild(between[i].firstChild);
-                    }
-                    between[i].appendChild(nodes[2]);
-                } else {
-                    between[i] = nodes[2];
+            between = getHtmlTree(between);
+            /*
+            var idx_s = [];
+            var idx_e = [];
+            for(var i = 0; i<between.length; i++) {
+                var check = between[i];
+                if(Array.isArray(check)) {
+                    check = _map[i];
                 }
-                sel_r.insertNode(between[i]);
-                _elems.push(val);
+                for (var elem of Array.from(c_start.childNodes)) {
+                    if(elem.isEqualNode(check.firstChild)) {
+                        idx_s.push(i);
+                        break;
+                    }
+                }
+                for (var elem of Array.from(c_end.childNodes)) {
+                    if(elem.isEqualNode(check.firstChild)) {
+                        idx_e.push(i);
+                        break;
+                    }
+                }
+            }*/
+            for (var i = 0; i < _keys.length; i++) {
+                var fullK = _keys[i].split('|');
+                var ch = between[fullK[0]];
+                for (var j = 1; j < fullK.length; j++) {
+                    ch = ch[fullK[j]];
+                }
+                var par = _map[fullK.join('|')];
+                while (par.firstChild) {
+                    par.removeChild(par.firstChild);
+                }
+                for (var elem of ch) {
+                    elem = recursiveMapEval(elem)[0];
+                    par.appendChild(elem);
+                }
+                _map[fullK.join('|')] = par;
             }
-        } catch (er) {
+            for (const entry of Object.entries(_map)) {
+                if (entry[0].split('|').length === 1) {
+                    between[entry[0]] = entry[1];
+                }
+            }
+            for (var i = between.length - 1; i >= 0; i--) {
+                if (between[i].nodeType === 3) {
+                    val = (new Date().valueOf()).toString() + '_' + Math.floor(Math.random() * 1000000);
+                    var nodes = defineNodes(null, null, between[i].textContent, val);
+                    between[i] = nodes[2];
+                    _elems.push(val);
+                } else if (between[i].hasChildNodes()) {
+                    for (var elem of between[i].childNodes) {
+                        val = (new Date().valueOf()).toString() + '_' + Math.floor(Math.random() * 1000000);
+                        var nodes = defineNodes(null, null, elem.textContent, val);
+                        if (elem.nodeType === 3) {
+                            between[i].replaceChild(nodes[2], elem);
+                        }
+                        _elems.push(val);
+                    }
+                }
+            }
+            for (var i = between.length - 1; i >= 0; i--) {
+                sel_r.insertNode(between[i].cloneNode(true))
+            }
+        } catch {
             var val = 0;
             var e = sel_r.startContainer;
             for (var elem of e.parentElement.childNodes) {
