@@ -24,7 +24,7 @@
 .slider_highlighter_chrome-ext {
     color: #eee;
     text-align: center;
-    line-height:20px;
+    line-height: 20px;
     position: absolute;
     cursor: pointer;
     top: 0;
@@ -65,12 +65,22 @@ input:checked + .slider_highlighter_chrome-ext:before {
 }
 .close_highlighter_chrome-ext { 
     position: absolute;
-    width: 15px;
-    height: 15px;
+    width: 20px;
+    height: 20px;
+    line-height: 19px;
     opacity: 0.55;
     cursor: pointer;
+    background-color: black;
+    color: #efefef;
+    text-align: center;
+    border-radius: 20px;
+    border-color: white;
 }
 .close_highlighter_chrome-ext:hover {
+    opacity: 0.75;
+    color: #efefef;
+}
+/* .close_highlighter_chrome-ext:hover {
     opacity: 1;
 }
 .close_highlighter_chrome-ext:before, .close_highlighter_chrome-ext:after {
@@ -86,4 +96,4 @@ input:checked + .slider_highlighter_chrome-ext:before {
 }
 .close_highlighter_chrome-ext:after {
     transform: rotate(-45deg);
-}
+} */
