@@ -75,6 +75,7 @@ input:checked + .slider_highlighter_chrome-ext:before {
     text-align: center;
     border-radius: 20px;
     border-color: white;
+    border: 1px solid;
 }
 .close_highlighter_chrome-ext:hover {
     opacity: 0.75;

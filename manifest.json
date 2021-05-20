@@ -17,18 +17,18 @@
         "src/content.js"
       ],
       "css": [
-        "pag/css/main.css"
+        "web-content/css/main.css"
       ],
       "run_at": "document_end"
     }
   ],
   "icons": {
-    "48": "pag/img/icon_highlighter48.png",
-    "128": "pag/img/icon_highlighter128.png"
+    "48": "web-content/img/icon_highlighter48.png",
+    "128": "web-content/img/icon_highlighter128.png"
   },
   "action": {
     "default_title": "Highlighter by Lorenzo",
-    "default_icon": "pag/img/icon_highlighter48.png",
-    "default_popup": "pag/std_popup.html"
+    "default_icon": "web-content/img/icon_highlighter48.png",
+    "default_popup": "web-content/std_popup.html"
   }
 }
