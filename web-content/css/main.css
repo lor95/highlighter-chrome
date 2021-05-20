@@ -11,6 +11,7 @@
     color: #333;
 }
 .switch_highlighter_chrome-ext {
+    font-family: 'Font Awesome 5 Pro';
     position: relative;
     display: inline-block;
     width: 100px;
@@ -63,7 +64,7 @@ input:checked + .slider_highlighter_chrome-ext:before {
 .slider_highlighter_chrome-ext.round:before {
     border-radius: 50%;
 }
-.close_highlighter_chrome-ext { 
+.close_highlighter_chrome-ext {
     position: absolute;
     width: 20px;
     height: 20px;

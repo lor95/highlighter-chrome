@@ -324,7 +324,7 @@ chrome.runtime.onMessage.addListener((message) => {
 var node = document.createElement('div');
 node.id = x_id;
 node.className = 'close_highlighter_chrome-ext';
-node.innerHTML = '<i class="fa fa-times"></i>';
+node.innerHTML = '<i class="fas fa-times"></i>';
 node.hidden = true;
 node.addEventListener('click', function () { deleteHighlight(this.getAttribute('referral')) }, false);
 node.addEventListener('mouseenter', function () { stopTimer() }, false);

@@ -5,7 +5,7 @@ chrome.storage.sync.get('storage', (data) => {
   Object.assign(storage, data.storage);
   sw_elem.checked = Boolean(storage.can_exec);
   if(!sw_elem.checked) {
-    span_sw_elem_icon.className = 'fa fa-ban';
+    span_sw_elem_icon.className = 'fas fa-ban';
   } else {
     span_sw_elem_icon.className = 'fas fa-highlighter';
   }
@@ -14,7 +14,7 @@ chrome.storage.sync.get('storage', (data) => {
 sw_elem.addEventListener('change', (event) => {
   storage.can_exec = event.target.checked;
   if(!event.target.checked) {
-    span_sw_elem_icon.className = 'fa fa-ban';
+    span_sw_elem_icon.className = 'fas fa-ban';
   } else {
     span_sw_elem_icon.className = 'fas fa-highlighter';
   }

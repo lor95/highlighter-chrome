@@ -17,9 +17,21 @@
         "src/content.js"
       ],
       "css": [
+        "web-content/css/all.min.css",
         "web-content/css/main.css"
       ],
       "run_at": "document_end"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "web-content/fonts/*"
+      ],
+      "matches": [
+        "<all_urls>"
+      ],
+      "extension_ids": []
     }
   ],
   "icons": {
