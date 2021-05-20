@@ -1,3 +1,8 @@
+@font-face {
+    font-family: 'Roboto';
+    src: url(chrome-extension://__MSG_@@extension_id__/web-content/fonts/Roboto-Regular.ttf);
+    font-weight: 300;
+}
 .icon_highlighter_chrome-ext {
     cursor: pointer;
     padding: 12px 12px 12px 12px;
@@ -68,34 +73,39 @@ input:checked + .slider_highlighter_chrome-ext:before {
     position: absolute;
     width: 20px;
     height: 20px;
-    line-height: 19px;
+    font-size: 15px !important;
+    line-height: 20px !important;
     opacity: 0.55;
     cursor: pointer;
     background-color: black;
-    color: #efefef;
+    color: #fff;
     text-align: center;
     border-radius: 20px;
-    border-color: white;
+    border-color: #fff;
     border: 1px solid;
 }
 .close_highlighter_chrome-ext:hover {
     opacity: 0.75;
     color: #efefef;
 }
-/* .close_highlighter_chrome-ext:hover {
-    opacity: 1;
-}
-.close_highlighter_chrome-ext:before, .close_highlighter_chrome-ext:after {
-    position: absolute;
-    left: 15px;
-    content: ' ';
-    height: 15px;
-    width: 2px;
+.cop_lines_highlighter_chrome-ext {
+    z-index: 2000;
+    -webkit-user-select: none;       
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    font-family: 'Roboto';
+    font-size: 14px !important;
     background-color: #333;
+    color: #fff;
+    position: fixed;
+    bottom: 40px;
+    left: 40px;
+    height: 50px;
+    width: 350px;
+    line-height: 50px !important;
+    padding-left: 10px;
+    border-radius: 8px;
+    -webkit-box-shadow: 5px 5px 13px -1px rgba(0,0,0,0.52); 
+    box-shadow: 5px 5px 13px -1px rgba(0,0,0,0.52);
 }
-.close_highlighter_chrome-ext:before {
-    transform: rotate(45deg);
-}
-.close_highlighter_chrome-ext:after {
-    transform: rotate(-45deg);
-} */

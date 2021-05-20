@@ -77,8 +77,8 @@ document.addEventListener('mouseup', function () {
     var sel = window.getSelection();
     if (storageCache.can_exec && sel.toString().length > 0) {
         var sel_r = sel.getRangeAt(0);
-        var val = (new Date().valueOf()).toString() + '_' + Math.floor(Math.random() * 1000000);
-        _elems.push(val);
+        var _x_val = (new Date().valueOf()).toString() + '_' + Math.floor(Math.random() * 1000000);
+        _elems.push(_x_val);
         try {
             var elements = sel_r.commonAncestorContainer.getElementsByTagName('*');
             var start = sel_r.startContainer.parentElement;
@@ -100,7 +100,7 @@ document.addEventListener('mouseup', function () {
                     if (Array.from(start.childNodes).length > 1) {
                         for (var elem of start.childNodes) {
                             if (sel_r.startContainer.isSameNode(elem)) {
-                                var nodes = defineNodes(elem.textContent.slice(0, sel_r.startOffset), null, elem.textContent.substring(sel_r.startOffset), val);
+                                var nodes = defineNodes(elem.textContent.slice(0, sel_r.startOffset), null, elem.textContent.substring(sel_r.startOffset), _x_val);
                                 start.insertBefore(nodes[0], elem);
                                 start.insertBefore(nodes[2], elem);
                                 start.removeChild(elem);
@@ -108,7 +108,7 @@ document.addEventListener('mouseup', function () {
                             }
                         }
                     } else {
-                        var nodes = defineNodes(start.textContent.slice(0, sel_r.startOffset), null, start.textContent.substring(sel_r.startOffset), val);
+                        var nodes = defineNodes(start.textContent.slice(0, sel_r.startOffset), null, start.textContent.substring(sel_r.startOffset), _x_val);
                         while (start.firstChild) {
                             start.removeChild(start.firstChild);
                         }
@@ -121,7 +121,7 @@ document.addEventListener('mouseup', function () {
                     if (Array.from(end.childNodes).length > 1) {
                         for (var elem of end.childNodes) {
                             if (sel_r.endContainer.isSameNode(elem)) {
-                                var nodes = defineNodes(null, elem.textContent.slice(sel_r.endOffset), elem.textContent.substring(0, sel_r.endOffset), val);
+                                var nodes = defineNodes(null, elem.textContent.slice(sel_r.endOffset), elem.textContent.substring(0, sel_r.endOffset), _x_val);
                                 end.insertBefore(nodes[2], elem);
                                 end.insertBefore(nodes[1], elem);
                                 end.removeChild(elem);
@@ -129,7 +129,7 @@ document.addEventListener('mouseup', function () {
                             }
                         }
                     } else {
-                        var nodes = defineNodes(null, end.textContent.slice(sel_r.endOffset), end.textContent.substring(0, sel_r.endOffset), val);
+                        var nodes = defineNodes(null, end.textContent.slice(sel_r.endOffset), end.textContent.substring(0, sel_r.endOffset), _x_val);
                         while (end.firstChild) {
                             end.removeChild(end.firstChild);
                         }
@@ -175,7 +175,7 @@ document.addEventListener('mouseup', function () {
                     par.removeChild(par.firstChild);
                 }
                 for (var elem of ch) {
-                    elem = recursiveMapEval(elem, val)[0];
+                    elem = recursiveMapEval(elem, _x_val)[0];
                     par.appendChild(elem);
                 }
                 _map[fullK.join('|')] = par;
@@ -187,11 +187,11 @@ document.addEventListener('mouseup', function () {
             }
             for (var i = between.length - 1; i >= 0; i--) {
                 if (between[i].nodeType === 3) {
-                    var nodes = defineNodes(null, null, between[i].textContent, val);
+                    var nodes = defineNodes(null, null, between[i].textContent, _x_val);
                     between[i] = nodes[2];
                 } else if (between[i].hasChildNodes()) {
                     for (var elem of between[i].childNodes) {
-                        var nodes = defineNodes(null, null, elem.textContent, val);
+                        var nodes = defineNodes(null, null, elem.textContent, _x_val);
                         if (elem.nodeType === 3) {
                             between[i].replaceChild(nodes[2], elem);
                         }
@@ -201,12 +201,12 @@ document.addEventListener('mouseup', function () {
             for (var i = between.length - 1; i >= 0; i--) {
                 sel_r.insertNode(between[i].cloneNode(true))
             }
-        } catch (er) {
-            var val = 0;
+        } catch {
+            var _x_val = (new Date().valueOf()).toString() + '_' + Math.floor(Math.random() * 1000000);
             var e = sel_r.startContainer;
             for (var elem of e.parentElement.childNodes) {
                 if (e.isSameNode(elem) && !Array.from(e.parentElement.classList).includes(def_class)) {
-                    var nodes = defineNodes(e.textContent.slice(0, sel_r.startOffset), e.textContent.slice(sel_r.endOffset), sel.toString(), val)
+                    var nodes = defineNodes(e.textContent.slice(0, sel_r.startOffset), e.textContent.slice(sel_r.endOffset), sel.toString(), _x_val)
                     e.parentElement.replaceChild(nodes[2], elem);
                     nodes[2].parentNode.insertBefore(nodes[0], nodes[2]);
                     nodes[2].parentNode.insertBefore(nodes[1], nodes[2].nextSibling);
@@ -215,7 +215,7 @@ document.addEventListener('mouseup', function () {
         }
         sel_r.setStart(document, 0);
         sel_r.setEnd(document, 0);
-        var elements = document.querySelectorAll('[ref-elem="' + val + '"]');
+        var elements = document.querySelectorAll('[ref-elem="' + _x_val + '"]');
         for (var element of elements) {
             element.addEventListener('mouseenter', function () { enter(this.id) }, false);
             element.addEventListener('mouseleave', function () { leave() }, false);
@@ -224,7 +224,9 @@ document.addEventListener('mouseup', function () {
 });
 
 const x_id = (new Date().valueOf()).toString();
+const s_id = (new Date().valueOf()).toString() + '_s';
 var timer;
+var timer_s;
 
 var enter = function (id) {
     if (storageCache.can_exec) {
@@ -284,13 +286,22 @@ function copyToClipBoard() {
             content += element.innerText;
         }
         if (content != '') {
+            window.clearTimeout(timer_s);
+            if (animation_s.playState !== 'finished') {
+                animation_s.finish();
+            }
+            var elem = document.getElementById(s_id);
             var temp = document.createElement('textarea');
             document.body.appendChild(temp);
             temp.value = content;
             temp.select();
             document.execCommand('copy');
             document.body.removeChild(temp);
-            alert('Lines successfully copied to clipboard!');
+            elem.hidden = false;
+            animation_s.play();
+            timer_s = window.setTimeout(function () {
+                document.getElementById(s_id).hidden = true;
+            }, 3200);
         }
     }
 }
@@ -321,12 +332,21 @@ chrome.runtime.onMessage.addListener((message) => {
     return true;
 });
 
-var node = document.createElement('div');
-node.id = x_id;
-node.className = 'close_highlighter_chrome-ext';
-node.innerHTML = '<i class="fas fa-times"></i>';
-node.hidden = true;
-node.addEventListener('click', function () { deleteHighlight(this.getAttribute('referral')) }, false);
-node.addEventListener('mouseenter', function () { stopTimer() }, false);
-node.addEventListener('mouseleave', function () { leave() }, false);
-document.body.appendChild(node);
+var node_x = document.createElement('div');
+node_x.id = x_id;
+node_x.className = 'close_highlighter_chrome-ext';
+node_x.innerHTML = '<i class="fas fa-times"></i>';
+node_x.hidden = true;
+node_x.addEventListener('click', function () { deleteHighlight(this.getAttribute('referral')) }, false);
+node_x.addEventListener('mouseenter', function () { stopTimer() }, false);
+node_x.addEventListener('mouseleave', function () { leave() }, false);
+document.body.appendChild(node_x);
+
+var node_s = document.createElement('div');
+node_s.id = s_id;
+node_s.className = 'cop_lines_highlighter_chrome-ext';
+node_s.innerHTML = 'Lines successfully copied to clipboard!';
+node_s.hidden = true;
+var animation_s = node_s.animate({ bottom: 0, opacity: 0 }, 3500);
+animation_s.finish();
+document.body.appendChild(node_s);
