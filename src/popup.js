@@ -1,24 +1,16 @@
 const storage = {};
-//const storageCache = {};
-
-chrome.storage.sync.get('storage', (data) => {
-  Object.assign(storage, data.storage);
-  sw_elem.checked = Boolean(storage.can_exec);
-  if (!sw_elem.checked) {
-    span_sw_elem_icon.className = 'fas fa-ban';
-  } else {
-    span_sw_elem_icon.className = 'fas fa-highlighter';
-  }
-});
 
 sw_elem.addEventListener('change', (event) => {
-  storage.can_exec = event.target.checked;
+  chrome.storage.sync.set({ 'can_exec': event.target.checked });
   if (!event.target.checked) {
     span_sw_elem_icon.className = 'fas fa-ban';
   } else {
     span_sw_elem_icon.className = 'fas fa-highlighter';
   }
-  chrome.storage.sync.set({ storage });
+  storage.can_exec = event.target.checked;
+  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    chrome.tabs.sendMessage(tabs[0].id, { action: 'popup_open', 'cache': storage });
+  });
 });
 
 copy_clp.addEventListener('click', (event) => {
@@ -44,6 +36,12 @@ chrome.action.onClicked.addListener(async (tab) => {
 function getAllStorageSyncData() {
   return new Promise((resolve, reject) => {
     chrome.storage.sync.get(null, (items) => {
+      sw_elem.checked = Boolean(items.can_exec);
+      if (!sw_elem.checked) {
+        span_sw_elem_icon.className = 'fas fa-ban';
+      } else {
+        span_sw_elem_icon.className = 'fas fa-highlighter';
+      }
       if (chrome.runtime.lastError) {
         return reject(chrome.runtime.lastError);
       }

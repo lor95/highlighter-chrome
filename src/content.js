@@ -266,12 +266,12 @@ var stopTimer = function () {
 var colorChange = function (id) {
     if (storage.can_exec) {
         id = 'c_' + id.slice(-1);
-        var settings = {};
+        var colors = {};
         chrome.storage.sync.get(function (data) {
             data.colors['c_std'] = data.colors[id];
             data.colors[id] = color_std;
-            settings = data.colors;
-            chrome.storage.sync.set({ 'colors': settings });
+            colors = data.colors;
+            chrome.storage.sync.set({ 'colors': colors });
             for (var element of document.querySelectorAll('[ref-elem="' + document.getElementById(x_id + '_btn').getAttribute('referral') + '"]')) {
                 element.style.backgroundColor = data.colors['c_std'];
             }
@@ -282,14 +282,11 @@ var colorChange = function (id) {
 
 function reloadColors() {
     chrome.storage.sync.get('colors', (data) => {
-        if (data.colors === undefined) {
-            chrome.storage.sync.set(colors);
-        }
-        data.colors['c_std'] === undefined ? color_std = '#ff6' : color_std = data.colors.c_std;
-        data.colors['c_0'] === undefined ? color_0 = '#7d7' : color_0 = data.colors.c_0;
-        data.colors['c_1'] === undefined ? color_1 = '#80cee1' : color_1 = data.colors.c_1;
-        data.colors['c_2'] === undefined ? color_2 = '#ffb347' : color_2 = data.colors.c_2;
-        data.colors['c_3'] === undefined ? color_3 = '#b19cd9' : color_3 = data.colors.c_3;
+        color_std = data.colors.c_std;
+        color_0 = data.colors.c_0;
+        color_1 = data.colors.c_1;
+        color_2 = data.colors.c_2;
+        color_3 = data.colors.c_3;
         document.getElementById(c_id + '0').style.backgroundColor = color_0;
         document.getElementById(c_id + '1').style.backgroundColor = color_1;
         document.getElementById(c_id + '2').style.backgroundColor = color_2;
@@ -349,17 +346,11 @@ document.addEventListener('keydown', (event) => {
     if (event.ctrlKey && event.key === 'c') {
         copyToClipBoard();
     } else if (event.ctrlKey && event.key === 'z') {
-        deleteHighlight('last');
+        closeDiv('last');
     } else if (event.ctrlKey && event.key === 'r') { // reload (debug)
-        var settings = { 'c_std': '#ff6', 'c_0': '#7d7', 'c_1': '#80cee1', 'c_2': '#ffb347', 'c_3': '#b19cd9' };
-        chrome.storage.sync.set({ 'colors': settings });
+        var colors = { 'c_std': '#ff6', 'c_0': '#7d7', 'c_1': '#80cee1', 'c_2': '#ffb347', 'c_3': '#b19cd9' };
+        chrome.storage.sync.set({ 'colors': colors });
         reloadColors();
-    }
-});
-
-chrome.storage.onChanged.addListener((changes, area) => {
-    if (area === 'sync' && changes.storage?.newValue) {
-        storage = changes.storage.newValue;
     }
 });
 
@@ -400,4 +391,11 @@ node_s.hidden = true;
 var animation_s = node_s.animate({ bottom: 0, opacity: 0 }, 3500);
 animation_s.finish();
 document.body.appendChild(node_s);
-reloadColors();
+
+chrome.storage.sync.get(function (data) {
+    if (data.can_exec === undefined || data.colors === undefined) {
+        let colors = { 'c_std': '#ff6', 'c_0': '#7d7', 'c_1': '#80cee1', 'c_2': '#ffb347', 'c_3': '#b19cd9' };
+        chrome.storage.sync.set({ 'can_exec': true, 'colors': colors });
+    }
+    reloadColors();
+});

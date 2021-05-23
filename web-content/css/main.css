@@ -93,7 +93,7 @@ input:checked + .slider_highlighter_chrome-ext:before {
 .floatdiv_highlighter_chrome-ext > span {
     height: 18px;
     width: 18px;
-    display:inline-block;
+    display: inline-block;
     align-self: center;
     margin-left: 2px;
     margin-right: 2px;
@@ -135,4 +135,7 @@ input:checked + .slider_highlighter_chrome-ext:before {
     border-radius: 8px;
     -webkit-box-shadow: 5px 5px 13px -1px rgba(0,0,0,0.52); 
     box-shadow: 5px 5px 13px -1px rgba(0,0,0,0.52);
+}
+[hidden] {
+    display: none !important;
 }
