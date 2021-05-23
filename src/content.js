@@ -6,16 +6,13 @@ var _temp_ids = [];
 var timer;
 var timer_s;
 var color_std;
-var color_0;
-var color_1;
-var color_2;
-var color_3;
+var _x_val = '';
 const def_class = 'hightlighter_highlighter_chrome-ext';
 const x_id = (new Date().valueOf()).toString();
 const c_id = (new Date().valueOf()).toString() + '_c_';
 const s_id = (new Date().valueOf()).toString() + '_s';
 
-function defineNodes(bef, end, content, val) {
+function defineNodes(bef, end, content) {
     var id = 'hightlighter-elem-id_' + Math.floor(Math.random() * 100000000);
     var bef_node = '';
     var end_node = '';
@@ -27,7 +24,7 @@ function defineNodes(bef, end, content, val) {
     }
     var node = document.createElement('span');
     node.id = id;
-    node.setAttribute('ref-elem', val);
+    node.setAttribute('ref-elem', _x_val);
     node.className = def_class;
     node.style.backgroundColor = color_std;
     node.textContent = content;
@@ -87,7 +84,7 @@ document.addEventListener('mouseup', function () {
     var sel = window.getSelection();
     if (storage.can_exec && sel.toString().length > 0) {
         var sel_r = sel.getRangeAt(0);
-        var _x_val = (new Date().valueOf()).toString() + '_' + Math.floor(Math.random() * 1000000);
+        _x_val = (new Date().valueOf()).toString() + '_' + Math.floor(Math.random() * 1000000);
         _elems.push(_x_val);
         try {
             var elements = sel_r.commonAncestorContainer.getElementsByTagName('*');
@@ -110,7 +107,7 @@ document.addEventListener('mouseup', function () {
                     if (Array.from(start.childNodes).length > 1) {
                         for (var elem of start.childNodes) {
                             if (sel_r.startContainer.isSameNode(elem)) {
-                                var nodes = defineNodes(elem.textContent.slice(0, sel_r.startOffset), null, elem.textContent.substring(sel_r.startOffset), _x_val);
+                                var nodes = defineNodes(elem.textContent.slice(0, sel_r.startOffset), null, elem.textContent.substring(sel_r.startOffset));
                                 start.insertBefore(nodes[0], elem);
                                 start.insertBefore(nodes[2], elem);
                                 start.removeChild(elem);
@@ -118,7 +115,7 @@ document.addEventListener('mouseup', function () {
                             }
                         }
                     } else {
-                        var nodes = defineNodes(start.textContent.slice(0, sel_r.startOffset), null, start.textContent.substring(sel_r.startOffset), _x_val);
+                        var nodes = defineNodes(start.textContent.slice(0, sel_r.startOffset), null, start.textContent.substring(sel_r.startOffset));
                         while (start.firstChild) {
                             start.removeChild(start.firstChild);
                         }
@@ -131,7 +128,7 @@ document.addEventListener('mouseup', function () {
                     if (Array.from(end.childNodes).length > 1) {
                         for (var elem of end.childNodes) {
                             if (sel_r.endContainer.isSameNode(elem)) {
-                                var nodes = defineNodes(null, elem.textContent.slice(sel_r.endOffset), elem.textContent.substring(0, sel_r.endOffset), _x_val);
+                                var nodes = defineNodes(null, elem.textContent.slice(sel_r.endOffset), elem.textContent.substring(0, sel_r.endOffset));
                                 end.insertBefore(nodes[2], elem);
                                 end.insertBefore(nodes[1], elem);
                                 end.removeChild(elem);
@@ -139,7 +136,7 @@ document.addEventListener('mouseup', function () {
                             }
                         }
                     } else {
-                        var nodes = defineNodes(null, end.textContent.slice(sel_r.endOffset), end.textContent.substring(0, sel_r.endOffset), _x_val);
+                        var nodes = defineNodes(null, end.textContent.slice(sel_r.endOffset), end.textContent.substring(0, sel_r.endOffset));
                         while (end.firstChild) {
                             end.removeChild(end.firstChild);
                         }
@@ -185,7 +182,7 @@ document.addEventListener('mouseup', function () {
                     par.removeChild(par.firstChild);
                 }
                 for (var elem of ch) {
-                    elem = recursiveMapEval(elem, _x_val)[0];
+                    elem = recursiveMapEval(elem)[0];
                     par.appendChild(elem);
                 }
                 _map[fullK.join('|')] = par;
@@ -197,11 +194,11 @@ document.addEventListener('mouseup', function () {
             }
             for (var i = between.length - 1; i >= 0; i--) {
                 if (between[i].nodeType === 3) {
-                    var nodes = defineNodes(null, null, between[i].textContent, _x_val);
+                    var nodes = defineNodes(null, null, between[i].textContent);
                     between[i] = nodes[2];
                 } else if (between[i].hasChildNodes()) {
                     for (var elem of between[i].childNodes) {
-                        var nodes = defineNodes(null, null, elem.textContent, _x_val);
+                        var nodes = defineNodes(null, null, elem.textContent);
                         if (elem.nodeType === 3) {
                             between[i].replaceChild(nodes[2], elem);
                         }
@@ -212,11 +209,10 @@ document.addEventListener('mouseup', function () {
                 sel_r.insertNode(between[i].cloneNode(true))
             }
         } catch {
-            var _x_val = (new Date().valueOf()).toString() + '_' + Math.floor(Math.random() * 1000000);
             var e = sel_r.startContainer;
             for (var elem of e.parentElement.childNodes) {
                 if (e.isSameNode(elem) && !Array.from(e.parentElement.classList).includes(def_class)) {
-                    var nodes = defineNodes(e.textContent.slice(0, sel_r.startOffset), e.textContent.slice(sel_r.endOffset), sel.toString(), _x_val)
+                    var nodes = defineNodes(e.textContent.slice(0, sel_r.startOffset), e.textContent.slice(sel_r.endOffset), sel.toString())
                     e.parentElement.replaceChild(nodes[2], elem);
                     nodes[2].parentNode.insertBefore(nodes[0], nodes[2]);
                     nodes[2].parentNode.insertBefore(nodes[1], nodes[2].nextSibling);
@@ -283,14 +279,10 @@ var colorChange = function (id) {
 function reloadColors() {
     chrome.storage.sync.get('colors', (data) => {
         color_std = data.colors.c_std;
-        color_0 = data.colors.c_0;
-        color_1 = data.colors.c_1;
-        color_2 = data.colors.c_2;
-        color_3 = data.colors.c_3;
-        document.getElementById(c_id + '0').style.backgroundColor = color_0;
-        document.getElementById(c_id + '1').style.backgroundColor = color_1;
-        document.getElementById(c_id + '2').style.backgroundColor = color_2;
-        document.getElementById(c_id + '3').style.backgroundColor = color_3;
+        document.getElementById(c_id + '0').style.backgroundColor = data.colors.c_0;
+        document.getElementById(c_id + '1').style.backgroundColor = data.colors.c_1;
+        document.getElementById(c_id + '2').style.backgroundColor = data.colors.c_2;
+        document.getElementById(c_id + '3').style.backgroundColor = data.colors.c_3;
     });
 }
 
@@ -348,8 +340,8 @@ document.addEventListener('keydown', (event) => {
     } else if (event.ctrlKey && event.key === 'z') {
         closeDiv('last');
     } else if (event.ctrlKey && event.key === 'r') { // reload (debug)
-        var colors = { 'c_std': '#ff6', 'c_0': '#7d7', 'c_1': '#80cee1', 'c_2': '#ffb347', 'c_3': '#b19cd9' };
-        chrome.storage.sync.set({ 'colors': colors });
+        let def_colors = { 'c_std': '#ff6', 'c_0': '#7d7', 'c_1': '#80cee1', 'c_2': '#ffb347', 'c_3': '#b19cd9' };
+        chrome.storage.sync.set({ 'colors': def_colors });
         reloadColors();
     }
 });
@@ -394,8 +386,8 @@ document.body.appendChild(node_s);
 
 chrome.storage.sync.get(function (data) {
     if (data.can_exec === undefined || data.colors === undefined) {
-        let colors = { 'c_std': '#ff6', 'c_0': '#7d7', 'c_1': '#80cee1', 'c_2': '#ffb347', 'c_3': '#b19cd9' };
-        chrome.storage.sync.set({ 'can_exec': true, 'colors': colors });
+        let def_colors = { 'c_std': '#ff6', 'c_0': '#7d7', 'c_1': '#80cee1', 'c_2': '#ffb347', 'c_3': '#b19cd9' };
+        chrome.storage.sync.set({ 'can_exec': true, 'colors': def_colors });
     }
     reloadColors();
 });
