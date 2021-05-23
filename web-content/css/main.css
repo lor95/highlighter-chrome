@@ -69,24 +69,51 @@ input:checked + .slider_highlighter_chrome-ext:before {
 .slider_highlighter_chrome-ext.round:before {
     border-radius: 50%;
 }
-.close_highlighter_chrome-ext {
+.floatdiv_highlighter_chrome-ext {
     position: absolute;
-    width: 20px;
-    height: 20px;
+    width: 120px;
+    height: 26px;
     font-size: 15px !important;
-    line-height: 20px !important;
-    opacity: 0.55;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0.45;
     cursor: pointer;
     background-color: black;
-    color: #fff;
+    color: #cfcfcf;
     text-align: center;
     border-radius: 20px;
     border-color: #fff;
     border: 1px solid;
 }
-.close_highlighter_chrome-ext:hover {
-    opacity: 0.75;
+.floatdiv_highlighter_chrome-ext:hover {
+    opacity: 0.95;
     color: #efefef;
+}
+.floatdiv_highlighter_chrome-ext > span {
+    height: 18px;
+    width: 18px;
+    display:inline-block;
+    align-self: center;
+    margin-left: 2px;
+    margin-right: 2px;
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+}
+.floatdiv_highlighter_chrome-ext > span > i {
+    align-self: center;
+}
+.floatdiv_highlighter_chrome-ext > span > i:hover {
+    color: white;
+    font-size: 16px;
+}
+.colorspan_highlighter_chrome-ext {
+    border-radius: 15px;
+}
+.colorspan_highlighter_chrome-ext:hover {
+    border: 1px solid;
+    border-color: white;
 }
 .cop_lines_highlighter_chrome-ext {
     z-index: 2000;

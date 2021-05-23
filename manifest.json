@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Highlighter by Lorenzo",
   "description": "Advanced copy to clipboard tool for Google Chrome browser.",
-  "version": "0.4",
+  "version": "0.5",
   "permissions": [
     "storage",
     "activeTab",

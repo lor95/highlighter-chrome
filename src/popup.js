@@ -1,10 +1,10 @@
 const storage = {};
-const storageCache = {};
+//const storageCache = {};
 
 chrome.storage.sync.get('storage', (data) => {
   Object.assign(storage, data.storage);
   sw_elem.checked = Boolean(storage.can_exec);
-  if(!sw_elem.checked) {
+  if (!sw_elem.checked) {
     span_sw_elem_icon.className = 'fas fa-ban';
   } else {
     span_sw_elem_icon.className = 'fas fa-highlighter';
@@ -13,7 +13,7 @@ chrome.storage.sync.get('storage', (data) => {
 
 sw_elem.addEventListener('change', (event) => {
   storage.can_exec = event.target.checked;
-  if(!event.target.checked) {
+  if (!event.target.checked) {
     span_sw_elem_icon.className = 'fas fa-ban';
   } else {
     span_sw_elem_icon.className = 'fas fa-highlighter';
@@ -28,9 +28,9 @@ copy_clp.addEventListener('click', (event) => {
 });
 
 const initStorageCache = getAllStorageSyncData().then(items => {
-  Object.assign(storageCache, items);
+  Object.assign(storage, items);
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-    chrome.tabs.sendMessage(tabs[0].id, { action: 'storage_cache', 'mem_cache': storageCache });
+    chrome.tabs.sendMessage(tabs[0].id, { action: 'popup_open', 'cache': storage });
   });
 });
 

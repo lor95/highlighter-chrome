@@ -1,9 +1,19 @@
-var storageCache = {};
+var storage = {};
 var _map = {};
 var _elems = [];
 var _keys = [];
 var _temp_ids = [];
+var timer;
+var timer_s;
+var color_std;
+var color_0;
+var color_1;
+var color_2;
+var color_3;
 const def_class = 'hightlighter_highlighter_chrome-ext';
+const x_id = (new Date().valueOf()).toString();
+const c_id = (new Date().valueOf()).toString() + '_c_';
+const s_id = (new Date().valueOf()).toString() + '_s';
 
 function defineNodes(bef, end, content, val) {
     var id = 'hightlighter-elem-id_' + Math.floor(Math.random() * 100000000);
@@ -19,7 +29,7 @@ function defineNodes(bef, end, content, val) {
     node.id = id;
     node.setAttribute('ref-elem', val);
     node.className = def_class;
-    node.style.backgroundColor = '#ffff66';
+    node.style.backgroundColor = color_std;
     node.textContent = content;
     return [bef_node, end_node, node, id];
 }
@@ -75,7 +85,7 @@ function recursiveMapEval(elem, val) {
 
 document.addEventListener('mouseup', function () {
     var sel = window.getSelection();
-    if (storageCache.can_exec && sel.toString().length > 0) {
+    if (storage.can_exec && sel.toString().length > 0) {
         var sel_r = sel.getRangeAt(0);
         var _x_val = (new Date().valueOf()).toString() + '_' + Math.floor(Math.random() * 1000000);
         _elems.push(_x_val);
@@ -223,28 +233,23 @@ document.addEventListener('mouseup', function () {
     }
 });
 
-const x_id = (new Date().valueOf()).toString();
-const s_id = (new Date().valueOf()).toString() + '_s';
-var timer;
-var timer_s;
-
 var enter = function (id) {
-    if (storageCache.can_exec) {
+    if (storage.can_exec) {
         window.clearTimeout(timer);
         timer = window.setTimeout(function () {
             var elem = document.getElementById(x_id);
             var del_elem = document.getElementById(id);
             var bounding = del_elem.getBoundingClientRect();
-            elem.setAttribute('referral', del_elem.getAttribute('ref-elem'));
-            elem.style.left = (Math.round(bounding.left) + Math.round(bounding.width) + window.scrollX - 20) + 'px';
-            elem.style.top = (Math.round(bounding.top) + window.scrollY - 20) + 'px';
+            document.getElementById(x_id + '_btn').setAttribute('referral', del_elem.getAttribute('ref-elem'));
+            elem.style.left = (Math.round(bounding.left) + Math.round(bounding.width) + window.scrollX - 120) + 'px';
+            elem.style.top = (Math.round(bounding.top) + window.scrollY - 26) + 'px';
             elem.hidden = false;
         }, 600);
     }
 };
 
 var leave = function () {
-    if (storageCache.can_exec) {
+    if (storage.can_exec) {
         window.clearTimeout(timer);
         timer = window.setTimeout(function () {
             document.getElementById(x_id).hidden = true;
@@ -253,13 +258,47 @@ var leave = function () {
 };
 
 var stopTimer = function () {
-    if (storageCache.can_exec) {
+    if (storage.can_exec) {
         window.clearTimeout(timer);
     }
 }
 
-var deleteHighlight = function (ref_id) {
-    if (storageCache.can_exec) {
+var colorChange = function (id) {
+    if (storage.can_exec) {
+        id = 'c_' + id.slice(-1);
+        var settings = {};
+        chrome.storage.sync.get(function (data) {
+            data.colors['c_std'] = data.colors[id];
+            data.colors[id] = color_std;
+            settings = data.colors;
+            chrome.storage.sync.set({ 'colors': settings });
+            for (var element of document.querySelectorAll('[ref-elem="' + document.getElementById(x_id + '_btn').getAttribute('referral') + '"]')) {
+                element.style.backgroundColor = data.colors['c_std'];
+            }
+            reloadColors();
+        });
+    }
+}
+
+function reloadColors() {
+    chrome.storage.sync.get('colors', (data) => {
+        if (data.colors === undefined) {
+            chrome.storage.sync.set(colors);
+        }
+        data.colors['c_std'] === undefined ? color_std = '#ff6' : color_std = data.colors.c_std;
+        data.colors['c_0'] === undefined ? color_0 = '#7d7' : color_0 = data.colors.c_0;
+        data.colors['c_1'] === undefined ? color_1 = '#80cee1' : color_1 = data.colors.c_1;
+        data.colors['c_2'] === undefined ? color_2 = '#ffb347' : color_2 = data.colors.c_2;
+        data.colors['c_3'] === undefined ? color_3 = '#b19cd9' : color_3 = data.colors.c_3;
+        document.getElementById(c_id + '0').style.backgroundColor = color_0;
+        document.getElementById(c_id + '1').style.backgroundColor = color_1;
+        document.getElementById(c_id + '2').style.backgroundColor = color_2;
+        document.getElementById(c_id + '3').style.backgroundColor = color_3;
+    });
+}
+
+var closeDiv = function (ref_id) {
+    if (storage.can_exec) {
         if (ref_id === 'last') {
             ref_id = _elems.pop();
         } else {
@@ -279,7 +318,7 @@ var deleteHighlight = function (ref_id) {
 }
 
 function copyToClipBoard() {
-    if (storageCache.can_exec) {
+    if (storage.can_exec) {
         var content = '';
         var elements = document.getElementsByClassName(def_class);
         for (var element of elements) {
@@ -311,12 +350,16 @@ document.addEventListener('keydown', (event) => {
         copyToClipBoard();
     } else if (event.ctrlKey && event.key === 'z') {
         deleteHighlight('last');
+    } else if (event.ctrlKey && event.key === 'r') { // reload (debug)
+        var settings = { 'c_std': '#ff6', 'c_0': '#7d7', 'c_1': '#80cee1', 'c_2': '#ffb347', 'c_3': '#b19cd9' };
+        chrome.storage.sync.set({ 'colors': settings });
+        reloadColors();
     }
 });
 
 chrome.storage.onChanged.addListener((changes, area) => {
     if (area === 'sync' && changes.storage?.newValue) {
-        storageCache = changes.storage.newValue;
+        storage = changes.storage.newValue;
     }
 });
 
@@ -325,8 +368,8 @@ chrome.runtime.onMessage.addListener((message) => {
         case 'copy_clp':
             copyToClipBoard();
             break;
-        case 'storage_cache':
-            storageCache = message.mem_cache.storage;
+        case 'popup_open':
+            storage = message.cache;
             break;
     }
     return true;
@@ -334,13 +377,20 @@ chrome.runtime.onMessage.addListener((message) => {
 
 var node_x = document.createElement('div');
 node_x.id = x_id;
-node_x.className = 'close_highlighter_chrome-ext';
-node_x.innerHTML = '<i class="fas fa-times"></i>';
+node_x.className = 'floatdiv_highlighter_chrome-ext';
+node_x.innerHTML = '<span id="' + c_id + '0" class="colorspan_highlighter_chrome-ext"></span>' +
+    '<span id="' + c_id + '1" class="colorspan_highlighter_chrome-ext"></span>' +
+    '<span id="' + c_id + '2" class="colorspan_highlighter_chrome-ext"></span>' +
+    '<span id="' + c_id + '3" class="colorspan_highlighter_chrome-ext"></span>' +
+    '<span><i id="' + x_id + '_btn" class="fas fa-times"></i></span>';
 node_x.hidden = true;
-node_x.addEventListener('click', function () { deleteHighlight(this.getAttribute('referral')) }, false);
 node_x.addEventListener('mouseenter', function () { stopTimer() }, false);
 node_x.addEventListener('mouseleave', function () { leave() }, false);
 document.body.appendChild(node_x);
+for (var color_elem of document.getElementsByClassName('colorspan_highlighter_chrome-ext')) {
+    color_elem.addEventListener('click', function () { colorChange(this.id) }, false);
+}
+document.getElementById(x_id + '_btn').addEventListener('click', function () { closeDiv(this.getAttribute('referral')) }, false);
 
 var node_s = document.createElement('div');
 node_s.id = s_id;
@@ -350,3 +400,4 @@ node_s.hidden = true;
 var animation_s = node_s.animate({ bottom: 0, opacity: 0 }, 3500);
 animation_s.finish();
 document.body.appendChild(node_s);
+reloadColors();
